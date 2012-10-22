@@ -1,8 +1,7 @@
 package EventBarrier;
-import java.util.HashSet;
 public class EventBarrier {
 
-private HashSet<Runnable> myThreads;
+private int myTCount;
 private boolean mySignal;
 
 	public EventBarrier(){
@@ -10,15 +9,14 @@ private boolean mySignal;
 	}
 
 	private void initialize() {
-		myThreads = new HashSet<Runnable>();
+		myTCount = 0;
 		mySignal = false;
 	}
 	
 	/*
 	 * First called by threads. If signaled then return immediately. Else wait until the the signal is switched on to return.
 	 */
-	public synchronized void wait(Runnable thread) throws InterruptedException{
-		myThreads.add(thread);
+	public synchronized void hold() throws InterruptedException{
 		while (mySignal == false){
 			super.wait();
 		}
@@ -29,6 +27,9 @@ private boolean mySignal;
 	 * before returning the unsignaled state.
 	 */
 	public synchronized void signal() throws InterruptedException{
+		if (mySignal = true)
+			return;
+		
 		mySignal = true;
 		notifyAll();
 		while (waiters() != 0)
@@ -37,15 +38,19 @@ private boolean mySignal;
 	}
 	
 	/*
-	 * Thread calls when it is finished responding to the event.
+	 * Thread calls when it is finished responding to the event. When all threads have responded notify the thread that activated 
+	 * the signal, so it can then turn off the signal
 	 */
-	public void complete(Runnable thread){
-		myThreads.remove(thread);
+	public void complete(){
+		myTCount--;
 		if (waiters() == 0)
 			notify();		
 	}
 	
+	/*
+	 * Returns the number of threads waiting for a signal or that have not finished responding to a signal
+	 */
 	public synchronized int waiters(){
-		return myThreads.size();
+		return myTCount;
 	}
 }
