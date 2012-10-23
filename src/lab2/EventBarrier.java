@@ -1,4 +1,4 @@
-package part1;
+package lab2;
 
 
 public class EventBarrier {

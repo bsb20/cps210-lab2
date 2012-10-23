@@ -1,6 +1,6 @@
-package part1;
+package lab2.part1;
 
-import part1.EventBarrier;
+import lab2.EventBarrier;
 
 
 public class Main {
@@ -33,7 +33,10 @@ public class Main {
 		for (int i=0; i<=4; i++){
 			threads[i].start();
 		}
-        Thread.sleep(5);
+        try {
+            Thread.sleep(5);
+        }
+        catch (InterruptedException e) {}
         eb.signal();
 	}
 }
