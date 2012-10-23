@@ -1,11 +1,30 @@
-package EventBarrier;
+package part1;
 
-import EventBarrier.EventBarrier;
-import EventBarrier.WaiterThread;
-import EventBarrier.Signaler;
+import part1.EventBarrier;
+
 
 public class Main {
-	public static void main (String[] args) throws InterruptedException{
+    private static class WaiterThread extends Thread {
+        private EventBarrier myEB;
+
+        public WaiterThread(EventBarrier eb){
+            myEB = eb;
+        }
+
+        public void run() {
+            double random = Math.random()*5000;
+            myEB.hold();
+            try {
+                System.out.println("sleeping: " + random + " ms");
+                sleep((long) random);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            myEB.complete();
+        }
+    }
+
+	public static void main(String[] args) {
 		EventBarrier eb = new EventBarrier();
 		WaiterThread[] threads = new WaiterThread[5];
 		for (int i=0; i<=4; i++){
@@ -14,8 +33,7 @@ public class Main {
 		for (int i=0; i<=4; i++){
 			threads[i].start();
 		}
-		Signaler s = new Signaler(eb);
-		s.start();
-
+        Thread.sleep(5);
+        eb.signal();
 	}
 }
