@@ -9,7 +9,7 @@ import lab2.part2.Rider;
 public class SingleElevator
 {
     public static void main(String[] args) throws InterruptedException {
-        int n = 20;
+        int n = 1;
         Building building = new Building(1);
         Random rand = new Random();
         Rider[] riders = new Rider[n];
@@ -19,8 +19,11 @@ public class SingleElevator
                                   rand.nextInt(Building.F));
             riders[i].start();
         }
+        building.startElevators();
         for (int i = 0; i < n; i++) {
             riders[i].join();
         }
+        building.stopElevators();
+        System.out.println("All done");
     }
 }

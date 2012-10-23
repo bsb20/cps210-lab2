@@ -31,12 +31,15 @@ public class Building
     }
 
     private Elevator findOpenElevator(int floor, boolean up) {
+        /*
         for (Elevator elevator : myElevators) {
             if (elevator.isGoingUp() == up &&
                 elevator.currentFloor() == floor)
                 return elevator;
         }
         return null;
+        */
+        return myElevators.get(0);
     }
 
     public synchronized EventBarrier getUpRiders(int floor) {
@@ -55,5 +58,17 @@ public class Building
     public synchronized Elevator awaitDown(int floor) {
         myDownRiders[floor].hold();
         return findOpenElevator(floor, false);
+    }
+
+    public void startElevators() {
+        for (Elevator elevator : myElevators) {
+            elevator.start();
+        }
+    }
+
+    public void stopElevators() {
+        for (Elevator elevator : myElevators) {
+            elevator.interrupt();
+        }
     }
 }

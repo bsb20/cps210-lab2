@@ -13,7 +13,8 @@ public class Elevator extends Thread{
 	private boolean up=true;
 
 	public Elevator(Building b){
-		myBuilding=b;
+		myBuilding = b;
+        myCurrentFloor = 0;
 		myFloorBarriers=new EventBarrier[myBuilding.getFloors()];
 		for(int i=0; i<myBuilding.getFloors(); i++){
 			myFloorBarriers[i]=new EventBarrier();
@@ -21,8 +22,8 @@ public class Elevator extends Thread{
 	}
 
     private synchronized void visitFloor(int floor){
-        System.out.println("Visiting floor: " + floor);
 		myCurrentFloor = floor;
+        System.out.println("Visiting floor: " + floor);
         if(up){
             myBuilding.getUpRiders(floor).signal();
         }
@@ -30,7 +31,6 @@ public class Elevator extends Thread{
             myBuilding.getDownRiders(floor).signal();
         }
         myFloorBarriers[floor].signal();
-        myCurrentFloor = -1;
 	}
 
 	public boolean isGoingUp(){
@@ -100,7 +100,11 @@ public class Elevator extends Thread{
 	@Override
 	public void run() {
         while (true) {
-            visitFloor(nextFloor());
+            int next = nextFloor();
+            if (next != -1)
+                visitFloor(next);
+            if (interrupted())
+                return;
         }
 	}
 }
