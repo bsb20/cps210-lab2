@@ -1,8 +1,9 @@
-package part2;
+package lab2;
 
 import java.util.List;
 
-import EventBarrier.EventBarrier;
+import lab2.EventBarrier;
+
 
 public class Elevator extends Thread{
 	private int myFloors;
@@ -19,12 +20,12 @@ public class Elevator extends Thread{
 			myFloorBarriers[i]=new EventBarrier();
 		}
 	}
-	
+
 	@Override
 	public void run(){
-		
+
 	}
-	
+
 	private synchronized void visitFloor(int floor){
 		myCurrentFloor=floor;
 		try{
@@ -50,13 +51,9 @@ public class Elevator extends Thread{
 			myBuilding.getDownRiders(floor).complete();
 		}
 	}
-	
+
 	public void exit(int floor) throws InterruptedException{
 		myFloorBarriers[floor].complete();
 	}
-	
-	
-	
-	
-	
+
 }

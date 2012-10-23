@@ -1,3 +1,8 @@
+package lab2.part2;
+
+import lab2.Building;
+
+
 public class Rider extends Thread
 {
     private Building myBuilding;
