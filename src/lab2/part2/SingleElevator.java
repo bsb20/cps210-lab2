@@ -1,13 +1,16 @@
 package lab2.part2;
 
+import java.util.Random;
+
+import lab2.Building;
 import lab2.part2.Rider;
 
 
 public class SingleElevator
 {
-    public static void main(String[]) {
+    public static void main(String[] args) throws InterruptedException {
         int n = 20;
-        Building myBuilding = new Building(1);
+        Building building = new Building(1);
         Random rand = new Random();
         Rider[] riders = new Rider[n];
 

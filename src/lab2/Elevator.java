@@ -3,52 +3,59 @@ package lab2;
 import java.util.List;
 
 import lab2.EventBarrier;
+import lab2.Building;
 
 
 public class Elevator extends Thread{
-	private int myFloors;
 	private int myCurrentFloor;
 	private EventBarrier[] myFloorBarriers;
 	private Building myBuilding;
 	private boolean up=true;
 
-	public Elevator(int floors, Building b){
+	public Elevator(Building b){
 		myBuilding=b;
-		myFloors=floors;
-		myFloorBarriers=new EventBarrier[myFloors];
-		for(int i=0; i<myFloors; i++){
+		myFloorBarriers=new EventBarrier[myBuilding.getFloors()];
+		for(int i=0; i<myBuilding.getFloors(); i++){
 			myFloorBarriers[i]=new EventBarrier();
 		}
 	}
 
     private synchronized void visitFloor(int floor){
-		myCurrentFloor=floor;
-		try{
-		if(up){
-			myBuilding.getUpRiders(floor).signal();
-		}
-		else{
-			myBuilding.getDownRiders(floor).signal();
-		}
-		myFloorBarriers[floor].signal();}
-		catch(InterruptedException e){
-			System.err.println("An interruption occurred");
-		}
+        System.out.println("Visiting floor: " + floor);
+		myCurrentFloor = floor;
+        if(up){
+            myBuilding.getUpRiders(floor).signal();
+        }
+        else{
+            myBuilding.getDownRiders(floor).signal();
+        }
+        myFloorBarriers[floor].signal();
+        myCurrentFloor = -1;
 	}
+
 	public boolean isGoingUp(){
 		return up;
 	}
-	public void enter(int floor) throws InterruptedException{
-		if(up){
-			myBuilding.getUpRiders(floor).complete();
+
+    public int currentFloor() {
+        return myCurrentFloor;
+    }
+
+	public void enter() {
+		if (up) {
+			myBuilding.getUpRiders(myCurrentFloor).complete();
 		}
 		else{
-			myBuilding.getDownRiders(floor).complete();
+			myBuilding.getDownRiders(myCurrentFloor).complete();
 		}
 	}
 
-	public void exit(int floor) throws InterruptedException{
-		myFloorBarriers[floor].complete();
+    public void requestFloor(int floor) {
+        myFloorBarriers[floor].hold();
+    }
+
+	public void exit() {
+		myFloorBarriers[myCurrentFloor].complete();
 	}
 
     private int nextFloor() {

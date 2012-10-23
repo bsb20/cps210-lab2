@@ -16,10 +16,10 @@ public class Building
 
     public Building(int E) {
         myElevators = new ArrayList<Elevator>(E);
-        myUpRiders = new long[F];
-        myDownRiders = new long[F];
+        myUpRiders = new EventBarrier[F];
+        myDownRiders = new EventBarrier[F];
         for (int i = 0; i < E; i++)
-            myElevators.add(new Elevator(F));
+            myElevators.add(new Elevator(this));
         for (int i = 0; i < F; i++) {
             myUpRiders[i] = new EventBarrier();
             myDownRiders[i] = new EventBarrier();
@@ -28,6 +28,15 @@ public class Building
 
     public int getFloors() {
         return F;
+    }
+
+    private Elevator findOpenElevator(int floor, boolean up) {
+        for (Elevator elevator : myElevators) {
+            if (elevator.isGoingUp() == up &&
+                elevator.currentFloor() == floor)
+                return elevator;
+        }
+        return null;
     }
 
     public synchronized EventBarrier getUpRiders(int floor) {
@@ -39,10 +48,12 @@ public class Building
     }
 
     public synchronized Elevator awaitUp(int floor) {
-        myUpRiders[f].wait();
+        myUpRiders[floor].hold();
+        return findOpenElevator(floor, true);
     }
 
     public synchronized Elevator awaitDown(int floor) {
-        myDownRiders[f].wait();
+        myDownRiders[floor].hold();
+        return findOpenElevator(floor, false);
     }
 }

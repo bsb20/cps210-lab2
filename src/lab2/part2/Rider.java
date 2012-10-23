@@ -1,6 +1,7 @@
 package lab2.part2;
 
 import lab2.Building;
+import lab2.Elevator;
 
 
 public class Rider extends Thread
@@ -16,7 +17,7 @@ public class Rider extends Thread
 
     @Override
     public void run() {
-        Elevator elevator = startFloor < endFloor ?
+        Elevator elevator = myStartFloor < myEndFloor ?
             myBuilding.awaitUp(myStartFloor) :
             myBuilding.awaitDown(myStartFloor);
         elevator.enter();
