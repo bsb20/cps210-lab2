@@ -26,6 +26,10 @@ public class Building
         }
     }
 
+    public int getFloors() {
+        return F;
+    }
+
     public synchronized EventBarrier getUpRiders(int floor) {
         return myUpRiders[floor];
     }
