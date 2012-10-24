@@ -50,14 +50,17 @@ public class Building
         return myDownRiders[floor];
     }
 
-    public synchronized Elevator awaitUp(int floor) {
+    public Elevator awaitUp(int floor) {
         myUpRiders[floor].hold();
+        synchronized(this){
         return findOpenElevator(floor, true);
+        }
     }
 
-    public synchronized Elevator awaitDown(int floor) {
+    public Elevator awaitDown(int floor) {
         myDownRiders[floor].hold();
-        return findOpenElevator(floor, false);
+        synchronized(this){
+        return findOpenElevator(floor, false);}
     }
 
     public void startElevators() {

@@ -77,7 +77,11 @@ public class Elevator extends Thread{
 
     private int nextHigherFloor() {
         for (int i = myCurrentFloor + 1; i < myBuilding.getFloors(); i++) {
-            if (myFloorBarriers[i].waiters() > 0 ||
+        	System.out.println("FLOOR " + i);
+        	System.out.println(myFloorBarriers[i].waiters());
+        	System.out.println(myBuilding.getUpRiders(i).waiters());
+        	System.out.println(myBuilding.getDownRiders(i).waiters());
+        	if (myFloorBarriers[i].waiters() > 0 ||
                 myBuilding.getUpRiders(i).waiters() > 0 ||
                 myBuilding.getDownRiders(i).waiters() > 0) {
                 return i;
@@ -88,6 +92,10 @@ public class Elevator extends Thread{
 
     private int nextLowerFloor() {
         for (int i = myCurrentFloor - 1; i >= 0; i--) {
+        	System.out.println("FLOOR " + i);
+        	System.out.println(myFloorBarriers[i].waiters());
+        	System.out.println(myBuilding.getUpRiders(i).waiters());
+        	System.out.println(myBuilding.getDownRiders(i).waiters());
             if (myFloorBarriers[i].waiters() > 0 ||
                 myBuilding.getUpRiders(i).waiters() > 0 ||
                 myBuilding.getDownRiders(i).waiters() > 0) {
