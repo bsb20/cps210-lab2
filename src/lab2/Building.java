@@ -1,27 +1,39 @@
+package lab2;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class Building{
+public class Building
+{
 	private List<Elevator> myElevators;
+
+
 	public Building(int numFloors, int numElevators) {
-		myElevators=new ArrayList<Elevator>();
-		for(int i=0; i<numElevators; i++){
-			myElevators.add(new Elevator(numFloors, i, 100));
+		myElevators = new ArrayList<Elevator>();
+		for (int i = 0; i < numElevators; i++) {
+			myElevators.add(new Elevator(i, numFloors));
 		}
-		
 	}
 
-	
-	public Elevator AwaitUp(int fromFloor) {
-		myElevators.get(0).RequestFloor(fromFloor);
-		if(myElevators.get(0).goingUp()){
-			return myElevators.get(0);
-		}
-		while(!myElevators.get(0).goingUp()){
-			myElevators.get(0).RequestFloor(fromFloor);
-		}
-		return myElevators.get(0);
+    private Elevator findElevator(int floor) {
+        return myElevators.get(0);
+    }
+
+	public Elevator awaitUp(int floor) {
+        Elevator elevator = findElevator(floor);
+        do {
+            elevator.requestFloor(floor);
+		} while (!elevator.goingUp());
+		return elevator;
+	}
+
+	public Elevator awaitDown(int floor) {
+        Elevator elevator = findElevator(floor);
+        do {
+            elevator.requestFloor(floor);
+		} while (elevator.goingUp());
+		return elevator;
 	}
 
 	public void startElevators(){
@@ -29,22 +41,10 @@ public class Building{
 			e.start();
 		}
 	}
-	
+
 	public void stopElevators(){
 		for(Elevator e: myElevators){
 			e.interrupt();
 		}
 	}
-	public Elevator AwaitDown(int fromFloor) {
-		myElevators.get(0).RequestFloor(fromFloor);
-		if(!myElevators.get(0).goingUp()){
-			System.out.println("yelp2");
-			return myElevators.get(0);
-		}
-		while(myElevators.get(0).goingUp()){
-			myElevators.get(0).RequestFloor(fromFloor);
-		}
-		return myElevators.get(0);
-	}
-
 }
