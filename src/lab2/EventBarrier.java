@@ -15,13 +15,13 @@ public class EventBarrier {
 	 * First called by threads. If signaled then return immediately. Else wait until the the signal is switched on to return.
 	 */
 	public synchronized void hold() {
+		myTCount++;
 		if (mySignal) {
 			return;
         }
-		myTCount++;
 		//System.out.println("call to wait    count: " + waiters());
 		while (!mySignal){
-			System.out.println("Thread called hold(), " + waiters() + " threads waiting on Signal");
+			//System.out.println("Thread called hold(), " + waiters() + " threads waiting on Signal");
             try {
                 super.wait();
             }
@@ -37,7 +37,7 @@ public class EventBarrier {
 		if (mySignal) {
 			return;
 		}
-		System.out.println("call to signal; Signal now is ON");
+		//System.out.println("call to signal; Signal now is ON");
 		mySignal = true;
 		notifyAll();
 		while (waiters() != 0) {
@@ -47,7 +47,7 @@ public class EventBarrier {
             catch (InterruptedException e) {}
 		}
 		mySignal = false;
-		System.out.println("Signal switched to OFF");
+		//System.out.println("Signal switched to OFF");
 	}
 
 	/*
@@ -56,9 +56,10 @@ public class EventBarrier {
 	 */
 	public synchronized void complete() {
 		myTCount--;
-		System.out.println("call to complete    count: " + waiters());
-		if (waiters() == 0)
+		//System.out.println("call to complete    count: " + waiters());
+		if (waiters() == 0) {
 			notifyAll();
+        }
 	}
 
 	/*

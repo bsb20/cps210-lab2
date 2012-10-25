@@ -22,17 +22,21 @@ public class Building
 
 	public Elevator awaitUp(int floor) {
         Elevator elevator = findElevator(floor);
-        do {
+        elevator.requestFloor(floor);
+        while (!elevator.goingUp()) {
+            elevator.enter(); // Pretend to enter calls call complete()
             elevator.requestFloor(floor);
-		} while (!elevator.goingUp());
+		}
 		return elevator;
 	}
 
 	public Elevator awaitDown(int floor) {
         Elevator elevator = findElevator(floor);
-        do {
+        elevator.requestFloor(floor);
+        while (elevator.goingUp()) {
+            elevator.enter(); // Pretend to enter calls call complete()
             elevator.requestFloor(floor);
-		} while (elevator.goingUp());
+        }
 		return elevator;
 	}
 

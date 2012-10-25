@@ -34,8 +34,23 @@ public class RiderThread extends Thread
                                                  myId, riderId, startFloor));
                 elevator = myBuilding.awaitDown(startFloor);
             }
+
+            System.out.println(String.format("T%d: R%d enters E%d on F%d",
+                                             myId, riderId,
+                                             elevator.getElevatorId(),
+                                             startFloor));
             elevator.enter();
+
+            System.out.println(String.format("T%d: R%d pushes E%dB%d",
+                                             myId, riderId,
+                                             elevator.getElevatorId(),
+                                             endFloor));
             elevator.requestFloor(endFloor);
+
+            System.out.println(String.format("T%d: R%d exits E%d on F%d",
+                                             myId, riderId,
+                                             elevator.getElevatorId(),
+                                             endFloor));
             elevator.exit();
 
             rider = Main.nextRider();

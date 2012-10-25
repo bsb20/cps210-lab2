@@ -24,6 +24,10 @@ public class Elevator extends Thread
         return goingUp;
     }
 
+    public int getElevatorId() {
+        return myId;
+    }
+
 	public void openDoors() {
 		System.out.println(String.format("E%d on F%d opens", myId,
                                          myCurrentFloor));
@@ -36,7 +40,8 @@ public class Elevator extends Thread
 	}
 
 	public void visitFloor(int floor) {
-        goingUp = floor > myCurrentFloor;
+        goingUp = (floor > myCurrentFloor) ||
+            (floor == myCurrentFloor && goingUp);
 		myCurrentFloor = floor;
 		System.out.println(String.format("E%d moves %s to F%d", myId,
                                          goingUp ? "up" : "down",
@@ -60,17 +65,24 @@ public class Elevator extends Thread
 
     private int nextFloor() {
         if (goingUp) {
-            int next = nextHigherFloor();
-            return next == -1 ? nextLowerFloor() : next;
+            int next = nextHigherFloor(false);
+            if (next != -1)
+                return next;
+            goingUp = false;
+            return nextLowerFloor(true);
         }
         else {
-            int next = nextLowerFloor();
-            return next == -1 ? nextHigherFloor() : next;
+            int next = nextLowerFloor(false);
+            if (next != -1)
+                return next;
+            goingUp = true;
+            return nextHigherFloor(true);
         }
     }
 
-    private int nextHigherFloor() {
-        for (int i = myCurrentFloor + 1; i < myFloors.length; i++) {
+    private int nextHigherFloor(boolean inclusive) {
+        int start = myCurrentFloor + (inclusive ? 0 : 1);
+        for (int i = start; i < myFloors.length; i++) {
             if (myFloors[i].waiters() > 0) {
                 return i;
             }
@@ -78,8 +90,9 @@ public class Elevator extends Thread
         return -1;
     }
 
-    private int nextLowerFloor() {
-        for (int i = myCurrentFloor - 1; i >= 0; i--) {
+    private int nextLowerFloor(boolean inclusive) {
+        int start = myCurrentFloor - (inclusive ? 0 : 1);
+        for (int i = start; i >= 0; i--) {
             if (myFloors[i].waiters() > 0) {
                 return i;
             }
