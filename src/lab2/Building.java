@@ -1,77 +1,50 @@
-package lab2;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import lab2.Elevator;
 
+public class Building{
+	private List<Elevator> myElevators;
+	public Building(int numFloors, int numElevators) {
+		myElevators=new ArrayList<Elevator>();
+		for(int i=0; i<numElevators; i++){
+			myElevators.add(new Elevator(numFloors, i, 100));
+		}
+		
+	}
 
-public class Building
-{
-    public static int F = 10;
+	
+	public Elevator AwaitUp(int fromFloor) {
+		myElevators.get(0).RequestFloor(fromFloor);
+		if(myElevators.get(0).goingUp()){
+			return myElevators.get(0);
+		}
+		while(!myElevators.get(0).goingUp()){
+			myElevators.get(0).RequestFloor(fromFloor);
+		}
+		return myElevators.get(0);
+	}
 
-    private List<Elevator> myElevators;
-    private EventBarrier[] myUpRiders, myDownRiders;
+	public void startElevators(){
+		for(Elevator e: myElevators){
+			e.start();
+		}
+	}
+	
+	public void stopElevators(){
+		for(Elevator e: myElevators){
+			e.interrupt();
+		}
+	}
+	public Elevator AwaitDown(int fromFloor) {
+		myElevators.get(0).RequestFloor(fromFloor);
+		if(!myElevators.get(0).goingUp()){
+			System.out.println("yelp2");
+			return myElevators.get(0);
+		}
+		while(myElevators.get(0).goingUp()){
+			myElevators.get(0).RequestFloor(fromFloor);
+		}
+		return myElevators.get(0);
+	}
 
-
-    public Building(int E) {
-        myElevators = new ArrayList<Elevator>(E);
-        myUpRiders = new EventBarrier[F];
-        myDownRiders = new EventBarrier[F];
-        for (int i = 0; i < E; i++)
-            myElevators.add(new Elevator(this));
-        for (int i = 0; i < F; i++) {
-            myUpRiders[i] = new EventBarrier();
-            myDownRiders[i] = new EventBarrier();
-        }
-    }
-
-    public int getFloors() {
-        return F;
-    }
-
-    private Elevator findOpenElevator(int floor, boolean up) {
-        /*
-        for (Elevator elevator : myElevators) {
-            if (elevator.isGoingUp() == up &&
-                elevator.currentFloor() == floor)
-                return elevator;
-        }
-        return null;
-        */
-        return myElevators.get(0);
-    }
-
-    public synchronized EventBarrier getUpRiders(int floor) {
-        return myUpRiders[floor];
-    }
-
-    public synchronized EventBarrier getDownRiders(int floor) {
-        return myDownRiders[floor];
-    }
-
-    public Elevator awaitUp(int floor) {
-        myUpRiders[floor].hold();
-        synchronized(this){
-        return findOpenElevator(floor, true);
-        }
-    }
-
-    public Elevator awaitDown(int floor) {
-        myDownRiders[floor].hold();
-        synchronized(this){
-        return findOpenElevator(floor, false);}
-    }
-
-    public void startElevators() {
-        for (Elevator elevator : myElevators) {
-            elevator.start();
-        }
-    }
-
-    public void stopElevators() {
-        for (Elevator elevator : myElevators) {
-            elevator.interrupt();
-        }
-    }
 }

@@ -1,7 +1,5 @@
-package lab2.part2;
 
-import lab2.Building;
-import lab2.Elevator;
+
 
 
 public class Rider extends Thread
@@ -20,12 +18,12 @@ public class Rider extends Thread
     public void run() {
         System.out.println("Calling: " + myStartFloor);
         Elevator elevator = myStartFloor < myEndFloor ?
-            myBuilding.awaitUp(myStartFloor) :
-            myBuilding.awaitDown(myStartFloor);
+            myBuilding.AwaitUp(myStartFloor) :
+            myBuilding.AwaitDown(myStartFloor);
         System.out.println("Entering");
-        elevator.enter();
-        elevator.requestFloor(myEndFloor);
-        elevator.exit();
+        elevator.Enter();
+        elevator.RequestFloor(myEndFloor);
+        elevator.Exit();
     }
 
 }

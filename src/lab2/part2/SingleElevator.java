@@ -1,22 +1,18 @@
-package lab2.part2;
-
 import java.util.Random;
-
-import lab2.Building;
-import lab2.part2.Rider;
 
 
 public class SingleElevator
 {
     public static void main(String[] args) throws InterruptedException {
-        int n = 1;
-        Building building = new Building(1);
+        System.out.println("good");
+    	int n = 1;
+        Building building = new Building(10,1);
         Random rand = new Random();
         Rider[] riders = new Rider[n];
 
         for (int i = 0; i < n; i++) {
-            riders[i] = new Rider(building, rand.nextInt(Building.F),
-                                  rand.nextInt(Building.F));
+            riders[i] = new Rider(building, rand.nextInt(10),
+                                  rand.nextInt(10));
             riders[i].start();
         }
         building.startElevators();
