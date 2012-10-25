@@ -52,8 +52,10 @@ public class Elevator extends Thread
 	}
 
 	public void requestFloor(int floor) {
+        synchronized (this) {
+            notifyAll();
+        }
 		myFloors[floor].hold();
-        this.notify();
 	}
 
     private int nextFloor() {
@@ -90,11 +92,13 @@ public class Elevator extends Thread
         while (true) {
             int next = nextFloor();
             if (next == -1) {
-                try {
-                    wait();
-                }
-                catch (InterruptedException e) {
-                    return;
+                synchronized (this) {
+                    try {
+                        wait();
+                    }
+                    catch (InterruptedException e) {
+                        return;
+                    }
                 }
             }
             else {

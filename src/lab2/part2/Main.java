@@ -20,8 +20,8 @@ public class Main
         R--;
         int[] rider = new int[3];
         rider[0] = sc.nextInt();
-        rider[1] = sc.nextInt();
-        rider[2] = sc.nextInt();
+        rider[1] = sc.nextInt() - 1;
+        rider[2] = sc.nextInt() - 1;
         return rider;
     }
 
@@ -35,11 +35,9 @@ public class Main
 
         Building building = new Building(F, E);
 
-        System.out.println(F + " " + E + " " + R + " " + T + " " + M);
-
         RiderThread[] riders = new RiderThread[T];
         for (int i = 0; i < T; i++) {
-            riders[i] = new RiderThread(building);
+            riders[i] = new RiderThread(building, i);
             riders[i].start();
         }
         building.startElevators();
