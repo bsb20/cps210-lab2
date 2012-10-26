@@ -15,7 +15,7 @@ public class SingleElevator
     public static void main(String[] args) throws InterruptedException {
         Building building = new Building(F, N);
         Random rand = new Random();
-        Rider[] riders = new Rider[N];
+        RiderThread[] riders = new RiderThread[N];
 
         for (int i = 0; i < N; i++) {
             riders[i] = new Rider(building, i, rand.nextInt(F), rand.nextInt(F));

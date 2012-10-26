@@ -1,11 +1,11 @@
 package lab2;
 
-import java.util.List;
 
 
 public class Elevator extends Thread
 {
     private int myId;
+    private int myCalls;
 	private EventBarrier[] myFloors;
 	private int myCurrentFloor;
 	private boolean goingUp = true;
@@ -13,6 +13,7 @@ public class Elevator extends Thread
 
 	public Elevator(int id, int floors) {
         myId = id;
+        myCalls=0;
 		myCurrentFloor = 0;
 		myFloors = new EventBarrier[floors];
 		for (int i=0; i < floors; i++) {
@@ -53,13 +54,18 @@ public class Elevator extends Thread
 	}
 
 	public void exit() {
+		synchronized(this){
+			myCalls-=2;
+		}
 		myFloors[myCurrentFloor].complete();
 	}
 
 	public void requestFloor(int floor) {
         synchronized (this) {
+        	myCalls++;
             notifyAll();
         }
+        System.out.println("elevator notified");
 		myFloors[floor].hold();
 	}
 
@@ -83,6 +89,7 @@ public class Elevator extends Thread
     private int nextHigherFloor(boolean inclusive) {
         int start = myCurrentFloor + (inclusive ? 0 : 1);
         for (int i = start; i < myFloors.length; i++) {
+        	//System.out.println(i+" floor has waiters: "+myFloors[i].waiters());
             if (myFloors[i].waiters() > 0) {
                 return i;
             }
@@ -94,6 +101,7 @@ public class Elevator extends Thread
         int start = myCurrentFloor - (inclusive ? 0 : 1);
         for (int i = start; i >= 0; i--) {
             if (myFloors[i].waiters() > 0) {
+            	
                 return i;
             }
         }
@@ -104,9 +112,11 @@ public class Elevator extends Thread
 	public void run() {
         while (true) {
             int next = nextFloor();
-            if (next == -1) {
+            if (next == -1 ) {
+            	if(myCalls==0){
                 synchronized (this) {
                     try {
+                    	System.out.println("elevator waiting for reqs");
                         wait();
                     }
                     catch (InterruptedException e) {
@@ -114,6 +124,7 @@ public class Elevator extends Thread
                     }
                 }
             }
+            	}
             else {
                 visitFloor(next);
                 openDoors();
