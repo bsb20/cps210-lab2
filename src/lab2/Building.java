@@ -12,7 +12,7 @@ public class Building
 	public Building(int numFloors, int numElevators) {
 		myElevators = new ArrayList<Elevator>();
 		for (int i = 0; i < numElevators; i++) {
-			myElevators.add(new Elevator(i, numFloors));
+			myElevators.add(new Elevator(i, numFloors, this));
 		}
 	}
 
@@ -22,19 +22,31 @@ public class Building
 
 	public Elevator awaitUp(int floor) {
         Elevator elevator = findElevator(floor);
-        elevator.requestFloor(floor);
+        elevator.requestFloor(floor, true);
         while (!elevator.goingUp()) {
-            elevator.enter(); // Pretend to enter calls call complete()
+            elevator.pass();
+            synchronized (this) {
+                try {
+                    wait();
+                }
+                catch (InterruptedException e) {}
+            }
             elevator.requestFloor(floor);
-		}
+        }
 		return elevator;
 	}
 
 	public Elevator awaitDown(int floor) {
         Elevator elevator = findElevator(floor);
-        elevator.requestFloor(floor);
+        elevator.requestFloor(floor, false);
         while (elevator.goingUp()) {
-            elevator.enter(); // Pretend to enter calls call complete()
+            elevator.pass();
+            synchronized (this) {
+                try {
+                    wait();
+                }
+                catch (InterruptedException e) {}
+            }
             elevator.requestFloor(floor);
         }
 		return elevator;

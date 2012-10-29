@@ -1,21 +1,25 @@
 package lab2;
 
+import java.util.TreeSet;
 
 
 public class Elevator extends Thread
 {
     private int myId;
-    private int myCalls;
 	private EventBarrier[] myFloors;
 	private int myCurrentFloor;
 	private boolean goingUp = true;
+    private Building myBuilding;
+    private TreeSet<Integer> myUpRequests, myDownRequests;
 
 
-	public Elevator(int id, int floors) {
+	public Elevator(int id, int floors, Building building) {
+        myBuilding = building;
         myId = id;
-        myCalls=0;
-		myCurrentFloor = 0;
+		myCurrentFloor = -1;
 		myFloors = new EventBarrier[floors];
+        myUpRequests = new TreeSet<Integer>();
+        myDownRequests = new TreeSet<Integer>();
 		for (int i=0; i < floors; i++) {
 			myFloors[i] = new EventBarrier();
 		}
@@ -36,13 +40,18 @@ public class Elevator extends Thread
 	}
 
 	public void closeDoors() {
+        synchronized (myBuilding) {
+            myBuilding.notifyAll();
+        }
 		System.out.println(String.format("E%d on F%d closes", myId,
                                          myCurrentFloor));
 	}
 
-	public void visitFloor(int floor) {
-        goingUp = (floor > myCurrentFloor) ||
-            (floor == myCurrentFloor && goingUp);
+	public synchronized void visitFloor(int floor) {
+        if (goingUp)
+            myUpRequests.remove(floor);
+        else
+            myDownRequests.remove(floor);
 		myCurrentFloor = floor;
 		System.out.println(String.format("E%d moves %s to F%d", myId,
                                          goingUp ? "up" : "down",
@@ -53,68 +62,58 @@ public class Elevator extends Thread
 		myFloors[myCurrentFloor].complete();
 	}
 
-	public void exit() {
-		synchronized(this){
-			myCalls-=2;
-		}
+	public void pass() {
 		myFloors[myCurrentFloor].complete();
 	}
 
-	public void requestFloor(int floor) {
+	public void exit() {
+		myFloors[myCurrentFloor].complete();
+	}
+
+    public void requestFloor(int floor) {
+        requestFloor(floor, floor > myCurrentFloor);
+    }
+
+	public void requestFloor(int floor, boolean upwards) {
         synchronized (this) {
-        	myCalls++;
+            if (upwards)
+                myUpRequests.add(floor);
+            else
+                myDownRequests.add(floor);
             notifyAll();
+            System.out.println("elevator notified");
         }
-        System.out.println("elevator notified");
 		myFloors[floor].hold();
 	}
 
-    private int nextFloor() {
+    private synchronized int nextFloor() {
         if (goingUp) {
-            int next = nextHigherFloor(false);
-            if (next != -1)
+            Integer next = myUpRequests.higher(myCurrentFloor);
+            if (next != null)
                 return next;
             goingUp = false;
-            return nextLowerFloor(true);
+            myCurrentFloor = myFloors.length;
+            next = myDownRequests.lower(myCurrentFloor);
+            return next != null ? next : -1;
         }
         else {
-            int next = nextLowerFloor(false);
-            if (next != -1)
+            Integer next = myDownRequests.lower(myCurrentFloor);
+            if (next != null)
                 return next;
             goingUp = true;
-            return nextHigherFloor(true);
+            myCurrentFloor = -1;
+            next = myUpRequests.higher(myCurrentFloor);
+            return next != null ? next : -1;
         }
-    }
-
-    private int nextHigherFloor(boolean inclusive) {
-        int start = myCurrentFloor + (inclusive ? 0 : 1);
-        for (int i = start; i < myFloors.length; i++) {
-        	//System.out.println(i+" floor has waiters: "+myFloors[i].waiters());
-            if (myFloors[i].waiters() > 0) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private int nextLowerFloor(boolean inclusive) {
-        int start = myCurrentFloor - (inclusive ? 0 : 1);
-        for (int i = start; i >= 0; i--) {
-            if (myFloors[i].waiters() > 0) {
-            	
-                return i;
-            }
-        }
-        return -1;
     }
 
 	@Override
 	public void run() {
         while (true) {
             int next = nextFloor();
-            if (next == -1 ) {
-            	if(myCalls==0){
+            if (myUpRequests.isEmpty() && myDownRequests.isEmpty()) {
                 synchronized (this) {
+                    myCurrentFloor = -1;
                     try {
                     	System.out.println("elevator waiting for reqs");
                         wait();
@@ -124,7 +123,6 @@ public class Elevator extends Thread
                     }
                 }
             }
-            	}
             else {
                 visitFloor(next);
                 openDoors();
