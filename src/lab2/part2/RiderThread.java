@@ -24,22 +24,21 @@ public class RiderThread extends Thread
             int endFloor = rider[2];
 
             Elevator elevator;
-            if (startFloor < endFloor) {
-                System.out.println(String.format("T%d: R%d pushes U%d",
-                                                 myId, riderId, startFloor));
-                elevator = myBuilding.awaitUp(startFloor);
-            }
-            else {
-                System.out.println(String.format("T%d: R%d pushes D%d",
-                                                 myId, riderId, startFloor));
-                elevator = myBuilding.awaitDown(startFloor);
-            }
+            while (true) {
+                if (startFloor < endFloor) {
+                    System.out.println(String.format("T%d: R%d pushes U%d",
+                                                     myId, riderId, startFloor));
+                    elevator = myBuilding.awaitUp(startFloor);
+                }
+                else {
+                    System.out.println(String.format("T%d: R%d pushes D%d",
+                                                     myId, riderId, startFloor));
+                    elevator = myBuilding.awaitDown(startFloor);
+                }
 
-            System.out.println(String.format("T%d: R%d enters E%d on F%d",
-                                             myId, riderId,
-                                             elevator.getElevatorId(),
-                                             startFloor));
-            elevator.enter();
+                if (elevator.enter(myId, riderId))
+                    break;
+            }
 
             System.out.println(String.format("T%d: R%d pushes E%dB%d",
                                              myId, riderId,

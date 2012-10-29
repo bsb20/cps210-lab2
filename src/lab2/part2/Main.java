@@ -33,7 +33,7 @@ public class Main
         T = sc.nextInt();
         M = sc.nextInt();
 
-        Building building = new Building(F, E);
+        Building building = new Building(F, E, M);
 
         RiderThread[] riders = new RiderThread[T];
         for (int i = 0; i < T; i++) {

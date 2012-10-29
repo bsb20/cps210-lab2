@@ -6,17 +6,21 @@ import java.util.TreeSet;
 public class Elevator extends Thread
 {
     private int myId;
+    private int myRiders = 0;
+    private int myCapacity;
 	private EventBarrier[] myFloors;
 	private int myCurrentFloor;
 	private boolean goingUp = true;
     private Building myBuilding;
+    private boolean myDoorsOpen = false;
     private TreeSet<Integer> myUpRequests, myDownRequests;
 
 
-	public Elevator(int id, int floors, Building building) {
+	public Elevator(int id, int floors, int capacity, Building building) {
         myBuilding = building;
         myId = id;
 		myCurrentFloor = -1;
+        myCapacity = capacity;
 		myFloors = new EventBarrier[floors];
         myUpRequests = new TreeSet<Integer>();
         myDownRequests = new TreeSet<Integer>();
@@ -29,17 +33,27 @@ public class Elevator extends Thread
         return goingUp;
     }
 
+    public boolean isOpen() {
+        return myDoorsOpen;
+    }
+
     public int getElevatorId() {
         return myId;
     }
 
+    public boolean isFull() {
+        return myRiders == myCapacity;
+    }
+
 	public void openDoors() {
+        myDoorsOpen = true;
 		System.out.println(String.format("E%d on F%d opens", myId,
                                          myCurrentFloor));
 		myFloors[myCurrentFloor].signal();
 	}
 
 	public void closeDoors() {
+        myDoorsOpen = false;
         synchronized (myBuilding) {
             myBuilding.notifyAll();
         }
@@ -58,15 +72,27 @@ public class Elevator extends Thread
                                          myCurrentFloor));
 	}
 
-	public void enter() {
-		myFloors[myCurrentFloor].complete();
+	public synchronized boolean enter(int threadId, int riderId) {
+        if (isFull()) {
+            myFloors[myCurrentFloor].complete();
+            return false;
+        }
+        else {
+            myRiders++;
+            System.out.println(String.format("T%d: R%d enters E%d on F%d",
+                                             threadId, riderId, myId,
+                                             myCurrentFloor));
+            myFloors[myCurrentFloor].complete();
+            return true;
+        }
 	}
 
 	public void pass() {
 		myFloors[myCurrentFloor].complete();
 	}
 
-	public void exit() {
+	public synchronized void exit() {
+        myRiders--;
 		myFloors[myCurrentFloor].complete();
 	}
 
@@ -123,7 +149,7 @@ public class Elevator extends Thread
                     }
                 }
             }
-            else {
+            else if (next != -1) {
                 visitFloor(next);
                 openDoors();
                 closeDoors();
