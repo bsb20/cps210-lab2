@@ -19,8 +19,6 @@ public class EventBarrier {
 		if (mySignal) {
 			return;
         }
-		
-		System.out.println("call to wait    count: " + waiters());
 		while (!mySignal){
 			//System.out.println("Thread called hold(), " + waiters() + " threads waiting on Signal");
             try {

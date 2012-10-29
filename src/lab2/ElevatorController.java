@@ -2,6 +2,7 @@ package lab2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class ElevatorController {
 
@@ -22,6 +23,9 @@ public class ElevatorController {
 	public synchronized void addDestination(int floor, boolean goingUp, Elevator e){
 		(goingUp ? myUpStops : myDownStops)[floor]=e;
 	}
+    public synchronized void removeDestination(int floor, boolean goingUp) {
+        (goingUp ? myUpStops : myDownStops)[floor]=null;
+    }
 	public synchronized Elevator findElevator(int floor, boolean goingUp){
 		if(goingUp && myUpStops[floor]!=null){
 			return myUpStops[floor];
@@ -30,33 +34,45 @@ public class ElevatorController {
 			return myDownStops[floor];
 		Elevator bestElevator=myElevators.get(0);
 		int bestDistance=Integer.MAX_VALUE;
-	for(Elevator e: myElevators){
-		int dist=elevatorDistanceFunction(e,floor,goingUp);
-		if(dist<bestDistance){
-			bestDistance=dist;
-			bestElevator=e;
-		}
+        for(Elevator e: myElevators){
+            int dist=elevatorDistanceFunction(e,floor,goingUp);
+            if(dist > 0 && dist<bestDistance){
+                bestDistance=dist;
+                bestElevator=e;
+            }
+        }
+        bestElevator = myElevators.get((new Random()).nextInt(myElevators.size()));
+        addDestination(floor, goingUp, bestElevator);
+        return bestElevator;
 	}
-	addDestination(floor, goingUp, bestElevator);
-	return bestElevator;
-	}
-	
+
 	private int elevatorDistanceFunction(Elevator e, int floor, boolean goingUp){
 		if(e.isFull()){
 			return Integer.MAX_VALUE;
 		}
-		if(goingUp==e.goingUp() && goingUp && (e.getFloor()<floor)){
-			return floor-e.getFloor();
-		}
-		if(goingUp==e.goingUp() && !goingUp && (e.getFloor()>floor)){
-			return e.getFloor()-floor;
-		}
-		if(goingUp!=e.goingUp() && !goingUp && (e.getFloor()<floor)){
-			return 2*e.getFloor()+(e.getFloor()-floor);
-		}
-		if(goingUp!=e.goingUp() && goingUp && (e.getFloor()>floor)){
-			return 2*e.getFloors()+(e.getFloor()-floor);
-		}
+
+        int mask = 0;
+        mask = (goingUp ? 1 : 0) |
+            (e.goingUp() ? 2 : 0) |
+            (e.getFloor() < floor ? 4 : 0);
+        switch (mask) {
+        case 0:
+            return e.getFloor() - floor;
+        case 1:
+            return e.getFloor() + floor;
+        case 2:
+            return 2 * e.getFloors() - floor - e.getFloor();
+        case 3:
+            return 2 * e.getFloors() + floor - e.getFloor();
+        case 4:
+            return 2 * e.getFloors() + floor + e.getFloor();
+        case 5:
+            return e.getFloor() + floor;
+        case 6:
+            return 2 * e.getFloors() - floor - e.getFloor();
+        case 7:
+            return floor - e.getFloor();
+        }
 		return Integer.MAX_VALUE;
 	}
 }

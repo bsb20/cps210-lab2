@@ -23,6 +23,7 @@ public class Building
 
     private Elevator await(int floor, boolean upwards) {
         Elevator elevator = findElevator(floor,upwards);
+        System.out.println("E" + elevator.getElevatorId() + " called");
         synchronized (this) {
             while (elevator.isFull()) {
                 try {

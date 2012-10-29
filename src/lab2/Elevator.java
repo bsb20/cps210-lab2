@@ -56,6 +56,12 @@ public class Elevator extends Thread
         myDoorsOpen = true;
 		System.out.println(String.format("E%d on F%d opens", myId,
                                          myCurrentFloor));
+		System.out.println(String.format("E%d on F%d has %d waiters", myId,
+                                         myCurrentFloor, myFloors[myCurrentFloor].waiters()));
+        try {
+            sleep(50);
+        }
+        catch (InterruptedException e) {}
 		myFloors[myCurrentFloor].signal();
 	}
 
@@ -73,6 +79,7 @@ public class Elevator extends Thread
             myUpRequests.remove(floor);
         else
             myDownRequests.remove(floor);
+        myController.removeDestination(floor, goingUp);
 		myCurrentFloor = floor;
 		System.out.println(String.format("E%d moves %s to F%d", myId,
                                          goingUp ? "up" : "down",
@@ -114,10 +121,9 @@ public class Elevator extends Thread
             else
                 myDownRequests.add(floor);
             notifyAll();
-            System.out.println("elevator notified");
+            myController.addDestination(floor, upwards, this);
         }
-        myController.addDestination(floor, upwards, this);
-		myFloors[floor].hold();
+        myFloors[floor].hold();
 	}
 
     private synchronized int nextFloor() {
@@ -149,7 +155,6 @@ public class Elevator extends Thread
                 synchronized (this) {
                     myCurrentFloor = -1;
                     try {
-                    	System.out.println("elevator waiting for reqs");
                         wait();
                     }
                     catch (InterruptedException e) {
