@@ -8,7 +8,7 @@ public class ElevatorController {
 
 	private List<Elevator> myElevators;
 	private Elevator[] myUpStops, myDownStops;
-	
+
 	public ElevatorController(int floors){
 		myElevators=new ArrayList<Elevator>();
 		myUpStops= new Elevator[floors];
@@ -32,7 +32,8 @@ public class ElevatorController {
 		}
 		if(!goingUp && myDownStops[floor]!=null)
 			return myDownStops[floor];
-		Elevator bestElevator=myElevators.get(0);
+        int randomIndex = (new Random()).nextInt(myElevators.size());
+		Elevator bestElevator=myElevators.get(randomIndex);
 		int bestDistance=Integer.MAX_VALUE;
         for(Elevator e: myElevators){
             int dist=elevatorDistanceFunction(e,floor,goingUp);
@@ -41,7 +42,7 @@ public class ElevatorController {
                 bestElevator=e;
             }
         }
-        bestElevator = myElevators.get((new Random()).nextInt(myElevators.size()));
+        //        bestElevator = myElevators.get((new Random()).nextInt(myElevators.size()));
         addDestination(floor, goingUp, bestElevator);
         return bestElevator;
 	}
@@ -51,27 +52,28 @@ public class ElevatorController {
 			return Integer.MAX_VALUE;
 		}
 
+        int penalty = e.requests() * e.getFloors() / 2;
         int mask = 0;
         mask = (goingUp ? 1 : 0) |
             (e.goingUp() ? 2 : 0) |
             (e.getFloor() < floor ? 4 : 0);
         switch (mask) {
         case 0:
-            return e.getFloor() - floor;
+            return penalty + e.getFloor() - floor;
         case 1:
-            return e.getFloor() + floor;
+            return penalty + e.getFloor() + floor;
         case 2:
-            return 2 * e.getFloors() - floor - e.getFloor();
+            return penalty + 2 * e.getFloors() - floor - e.getFloor();
         case 3:
-            return 2 * e.getFloors() + floor - e.getFloor();
+            return penalty + 2 * e.getFloors() + floor - e.getFloor();
         case 4:
-            return 2 * e.getFloors() + floor + e.getFloor();
+            return penalty + 2 * e.getFloors() + floor + e.getFloor();
         case 5:
-            return e.getFloor() + floor;
+            return penalty + e.getFloor() + floor;
         case 6:
-            return 2 * e.getFloors() - floor - e.getFloor();
+            return penalty + 2 * e.getFloors() - floor - e.getFloor();
         case 7:
-            return floor - e.getFloor();
+            return penalty + floor - e.getFloor();
         }
 		return Integer.MAX_VALUE;
 	}

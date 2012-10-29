@@ -65,6 +65,10 @@ public class Elevator extends Thread
 		myFloors[myCurrentFloor].signal();
 	}
 
+    public int requests() {
+        return myUpRequests.size() + myDownRequests.size();
+    }
+
 	public void closeDoors() {
         myDoorsOpen = false;
         synchronized (myBuilding) {
