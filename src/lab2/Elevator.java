@@ -14,10 +14,12 @@ public class Elevator extends Thread
     private Building myBuilding;
     private boolean myDoorsOpen = false;
     private TreeSet<Integer> myUpRequests, myDownRequests;
+    private ElevatorController myController;
 
 
-	public Elevator(int id, int floors, int capacity, Building building) {
-        myBuilding = building;
+	public Elevator(ElevatorController controller, int id, int floors, int capacity, Building building) {
+		myController=controller;
+		myBuilding = building;
         myId = id;
 		myCurrentFloor = -1;
         myCapacity = capacity;
@@ -44,7 +46,12 @@ public class Elevator extends Thread
     public boolean isFull() {
         return myRiders == myCapacity;
     }
-
+    public int getFloor(){
+    	return myCurrentFloor;
+    }
+    public int getFloors(){
+    	return myFloors.length;
+    }
 	public void openDoors() {
         myDoorsOpen = true;
 		System.out.println(String.format("E%d on F%d opens", myId,
@@ -109,6 +116,7 @@ public class Elevator extends Thread
             notifyAll();
             System.out.println("elevator notified");
         }
+        myController.addDestination(floor, upwards, this);
 		myFloors[floor].hold();
 	}
 

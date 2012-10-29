@@ -6,22 +6,23 @@ import java.util.List;
 
 public class Building
 {
-	private List<Elevator> myElevators;
-
+	
+	private ElevatorController myController;
 
 	public Building(int numFloors, int numElevators, int capacity) {
-		myElevators = new ArrayList<Elevator>();
+		myController=new ElevatorController(numFloors);
 		for (int i = 0; i < numElevators; i++) {
-			myElevators.add(new Elevator(i, numFloors, capacity, this));
+			myController.add(new Elevator(myController, i, numFloors, capacity, this));
 		}
+
 	}
 
-    private Elevator findElevator(int floor) {
-        return myElevators.get(0);
+    private Elevator findElevator(int floor, boolean upwards) {
+        return myController.findElevator(floor, upwards);
     }
 
     private Elevator await(int floor, boolean upwards) {
-        Elevator elevator = findElevator(floor);
+        Elevator elevator = findElevator(floor,upwards);
         synchronized (this) {
             while (elevator.isFull()) {
                 try {
@@ -55,13 +56,13 @@ public class Building
 	}
 
 	public void startElevators(){
-		for(Elevator e: myElevators){
+		for(Elevator e: myController.getElevators()){
 			e.start();
 		}
 	}
 
 	public void stopElevators(){
-		for(Elevator e: myElevators){
+		for(Elevator e: myController.getElevators()){
 			e.interrupt();
 		}
 	}
