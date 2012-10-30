@@ -1,1 +1,97 @@
 COMPSCI 210 Lab 2
+
+################
+# Team Info
+################
+
+Name1: Jim Posen
+NetId1: jep37
+
+Name2: Ben Berg
+NetId2: bsb20
+
+Name3: Ian Rapoport
+NetId3: ihr2
+
+###############
+# Time spent
+###############
+
+Between the 3 of us…maybe 25 hours or so? 
+
+################
+# Files to submit
+################
+elevator.log
+README (obviously)
+EventBarrier.java
+Building.java
+Elevator.java
+ElevatorController.java
+
+Other part1 classes: 
+Main.java (test)
+
+Other part2 classes:
+Main.java (test/executable)
+RiderThread.java
+
+####################################
+# Implementation details
+####################################
+NOTE: This is only intended to be a brief overview of our code design. Each submitted
+class is well commented and will provide additional details on specific functionalities. 
+
+*PART 1*
+The essential class in part 1 is the EventBarrier. The Eventbarrier is a general object used for
+thread synchronization, and proved useful in the implementation of part 2. As specified by the 
+project overview, the EventBarrier contains a Signal turned on/off and a count of threads waiting 
+on the EventBarrier for the signal, or in the process of responding to the signal (the event). When
+a thread calls hold() on the EventBarrier, the thread is blocked unless the signal is already turned on.
+When another thread signals the event by calling signal, the EventBarrier's mutex is used to call notifyall()
+awakening the threads and allowing them to execute. The EventBarrier then executes/blocks until all the responding
+threads call complete().
+
+The Main file in the lab1 directory contains a "test" case for the EventBarrier. To use it, one must un-comment the
+comments lines of code in the EventBarrier class. Of course, part 2 provides a much better test of EventBarrier.
+
+*Part 2*
+Our code uses the conventions outlined by Vamsi in his "hints" post on Piazza and will function accordingly.
+
+The part 2 code is run from the Main class. Main sets up the log file, reads in the 5 basic parameters from an input file
+or std in, initializes a building with the correct number of floors, elevators, and the specified capacity, and finally initializes the 
+RiderThreads. Each RiderThread executes as a loop, reading in info about the next Rider request and calling 5 methods: building.awaitUp/down(blocks), Elevator.enter(calls complete()), Elevator.requestfloor(blocks), Elevator.exit(calls complete()).
+
+The logic that decides which elevator picks up a Rider is contained in the ElevatorController. E-C contains an array of Elevators, indexed by 
+the building's floors. When an elevator has been assigned the visit a floor, it is registered in this array. When findElevator() is called on the E-C by the Building, the E-C returns a reference to an elevator, based on whether an elevator is already scheduled to visit the requested floor
+or an algorithm we have written for finding the optimal elevator. If a Rider encounters an elevator that is already full or headed in the wrong 
+direction, the building's mutex is used to block the RiderThread until the doors of the elevator close and the request can be made once again. 
+
+Each elevator contains an array of EventBarriers, indexed by the floors of the building. When a RiderThread inputs a request to the elevator to visit a floor, either from inside or outside the elevator, the EventBarrier on that floor is used to block the RiderThread – the thread is 
+notified that it can enter/exit the elevator when elevator.opendoors() is called. Each elevator runs as a thread that loops, each time reading in 
+the next rider request and fulfilling it. 
+
+
+Again, further detail is contained in the commented code. This was intended to be a high-level overview of our code's functionality and design.
+
+####################################
+# Feedback on the lab
+####################################
+
+I (Ian) would say this lab took us a little longer than expected. This was partly 
+due to the nature of multithreaded programming in that de-bugging took us a frustratingly
+long time (though we realize de-bugging race conditions/deadlock is an obvious objective 
+of such an assignment). The only other thing I (again, speaking only as Ian) would add
+is that while I appreciate the efforts of the teaching staff to put these labs together
+and to respond so promptly to questions on Piazza, it does get a tad frustrating when
+we do not receive necessary details/assignment fixes until part-way through the time 
+in which the project is assigned. This project was clearly intended to give us some freedom, 
+but I feel that at the very least some of the expectations for grading included
+in Vamsi's "hints" post should have been explained earlier. 
+
+Again, though, we sincerely appreciate the work the staff has put in.
+
+##################################
+# Additional comments
+##################################
+Nope.
