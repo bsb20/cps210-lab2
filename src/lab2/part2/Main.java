@@ -9,7 +9,9 @@ import java.util.Scanner;
 import lab2.Building;
 import lab2.part2.RiderThread;
 
-
+/*
+ * Executes the Elevator program using the conventions specified by Vamsi on Piazza.
+ */
 public class Main
 {
     private static Scanner sc;

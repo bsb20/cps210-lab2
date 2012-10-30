@@ -1,6 +1,10 @@
 package lab2;
 
-
+/*
+ * Object that blocks threads until a thread calls signal() when an event occurs. The object iself 
+ * is then blocks until all the waiting threads respond to the event and calls complete() 
+ * NOTE: Test Code in part1 directory only works if the commented-out comments are un-commented.
+ */
 public class EventBarrier {
 
     private int myTCount;

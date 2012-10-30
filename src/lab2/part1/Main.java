@@ -2,6 +2,11 @@ package lab2.part1;
 
 import lab2.EventBarrier;
 
+/*
+ * Test written for the EventBarrier Class. 5 Threads wait on the eventbarrier. The main method
+ * then calls signal, awakening the threads, which then call complete() until the signal is turned off.
+ * NOTE: The commented-out lines of code in EventBarrier must be un-commented for this test to work.
+ */
 
 public class Main {
     private static class WaiterThread extends Thread {
