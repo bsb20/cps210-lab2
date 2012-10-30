@@ -1,5 +1,9 @@
 package lab2.part2;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.Scanner;
 
 import lab2.Building;
@@ -25,7 +29,10 @@ public class Main
         return rider;
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, FileNotFoundException {
+        File log=new File("elevator.log");
+        System.setOut(new PrintStream(new FileOutputStream(log)));
+
         sc = new Scanner(System.in);
         F = sc.nextInt();
         E = sc.nextInt();
